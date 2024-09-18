@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Cadastro de Visitante</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://i.postimg.cc/wjSwXV3N/IMG-0106.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-top: 450px; /* Ajuste do espaçamento superior */
+        }
+        h1 {
+            color: #fff;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #fff;
+        }
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="welcomeTitle">Cadastro de Visitante</h1>
+        <form id="visitorForm" aria-labelledby="welcomeTitle">
+            <label for="name" id="nameLabel">Nome:</label>
+            <input type="text" id="name" name="name" required aria-label="Nome">
+            <label for="phone" id="phoneLabel">Telefone:</label>
+            <input type="tel" id="phone" name="phone" required aria-label="Telefone">
+            
+            <!-- Checkbox para consentimento de contato -->
+            <label for="consent">
+                <input type="checkbox" id="consent" name="consent" required>
+                Aceito ser contatado.
+            </label>
+
+            <button type="submit" id="submitButton">Enviar</button>
+        </form>
+    </div>
+    <script>
+        // Função para definir o idioma da página
+        function setLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            const pageTitle = document.getElementById('pageTitle');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const nameLabel = document.getElementById('nameLabel');
+            const phoneLabel = document.getElementById('phoneLabel');
+            const submitButton = document.getElementById('submitButton');
+            const consentLabel = document.querySelector('label[for="consent"]');
+
+            if (userLang.startsWith('en')) {
+                pageTitle.textContent = 'Visitor Registration';
+                welcomeTitle.textContent = 'Visitor Registration';
+                nameLabel.textContent = 'Name:';
+                phoneLabel.textContent = 'Phone:';
+                submitButton.textContent = 'Submit';
+                consentLabel.textContent = 'I consent to be contacted.';
+            } else {
+                pageTitle.textContent = 'Cadastro de Visitante';
+                welcomeTitle.textContent = 'Cadastro de Visitante';
+                nameLabel.textContent = 'Nome:';
+                phoneLabel.textContent = 'Telefone:';
+                submitButton.textContent = 'Enviar';
+                consentLabel.textContent = 'Aceito ser contatado.';
+            }
+        }
+
+        // Executar a função ao carregar a página
+        setLanguage();
+
+        // Script para envio do formulário via WhatsApp
+        document.getElementById('visitorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const consent = document.getElementById('consent').checked;
+
+            if (!consent) {
+                alert('Você deve aceitar ser contatado para enviar o cadastro.');
+                return;
+            }
+
+            // Substitua '55NUMERO' pelo número de telefone no formato internacional (sem espaços ou símbolos)
+            const whatsappNumber = '5511999999999'; // Exemplo: +55 11 99999-9999
+            const message = `Nome: ${name}%0ATelefone: ${phone}`;
+
+            // Redirecionar para WhatsApp com a mensagem pré-preenchida
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
