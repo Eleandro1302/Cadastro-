@@ -1,17 +1,17 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Cadastro de Visitante</title>
+    <title>Cadastro de Visitantes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: url('https://i.postimg.cc/wjSwXV3N/IMG-0106.jpg') no-repeat center center fixed;
+            background: url('https://i.postimg.cc/FF6GCm27/IMG-0108.jpg') no-repeat center center fixed;
             background-size: cover;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            justify-content: flex-start; /* Alinha o container à esquerda */
+            align-items: flex-start; /* Alinha o container no topo */
             height: 100vh;
             margin: 0;
             color: white;
@@ -25,7 +25,7 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
-            margin-top: 450px; /* Ajuste do espaçamento superior */
+            margin: 20px; /* Adiciona um pouco de espaço ao redor do container */
         }
         h1 {
             color: #fff;
@@ -43,7 +43,12 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-        input[type="checkbox"] {
+        .consent {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .consent input {
             margin-right: 10px;
         }
         button {
@@ -62,71 +67,58 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="welcomeTitle">Cadastro de Visitante</h1>
-        <form id="visitorForm" aria-labelledby="welcomeTitle">
-            <label for="name" id="nameLabel">Nome:</label>
-            <input type="text" id="name" name="name" required aria-label="Nome">
-            <label for="phone" id="phoneLabel">Telefone:</label>
-            <input type="tel" id="phone" name="phone" required aria-label="Telefone">
-            
-            <!-- Checkbox para consentimento de contato -->
-            <label for="consent">
+        <h1>Bem-vindo a AD NewLife</h1>
+        <form id="visitorForm">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="phone">Telefone:</label>
+            <input type="tel" id="phone" name="phone" required>
+            <div class="consent">
                 <input type="checkbox" id="consent" name="consent" required>
-                Aceito ser contatado.
-            </label>
-
-            <button type="submit" id="submitButton">Enviar</button>
+                <label for="consent">Eu aceito ser contatado.</label>
+            </div>
+            <button type="submit">Enviar</button>
         </form>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script>
-        // Função para definir o idioma da página
-        function setLanguage() {
-            const userLang = navigator.language || navigator.userLanguage;
-            const pageTitle = document.getElementById('pageTitle');
-            const welcomeTitle = document.getElementById('welcomeTitle');
-            const nameLabel = document.getElementById('nameLabel');
-            const phoneLabel = document.getElementById('phoneLabel');
-            const submitButton = document.getElementById('submitButton');
-            const consentLabel = document.querySelector('label[for="consent"]');
+        // Detectar o idioma do navegador e definir o atributo lang do elemento html
+        document.documentElement.lang = navigator.language || navigator.userLanguage;
 
-            if (userLang.startsWith('en')) {
-                pageTitle.textContent = 'Visitor Registration';
-                welcomeTitle.textContent = 'Visitor Registration';
-                nameLabel.textContent = 'Name:';
-                phoneLabel.textContent = 'Phone:';
-                submitButton.textContent = 'Submit';
-                consentLabel.textContent = 'I consent to be contacted.';
-            } else {
-                pageTitle.textContent = 'Cadastro de Visitante';
-                welcomeTitle.textContent = 'Cadastro de Visitante';
-                nameLabel.textContent = 'Nome:';
-                phoneLabel.textContent = 'Telefone:';
-                submitButton.textContent = 'Enviar';
-                consentLabel.textContent = 'Aceito ser contatado.';
-            }
-        }
+        // Inicializar intl-tel-input
+        const phoneInputField = document.querySelector("#phone");
+        const phoneInput = window.intlTelInput(phoneInputField, {
+            initialCountry: "auto",
+            geoIpLookup: function(callback) {
+                fetch('https://ipinfo.io/json?token=<YOUR_TOKEN>')
+                    .then(response => response.json())
+                    .then(data => callback(data.country))
+                    .catch(() => callback('us'));
+            },
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+        });
 
-        // Executar a função ao carregar a página
-        setLanguage();
-
-        // Script para envio do formulário via WhatsApp
         document.getElementById('visitorForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
+            const phone = phoneInput.getNumber();
             const consent = document.getElementById('consent').checked;
 
             if (!consent) {
-                alert('Você deve aceitar ser contatado para enviar o cadastro.');
+                alert('Você deve aceitar ser contatado para enviar o formulário.');
                 return;
             }
 
-            // Substitua '55NUMERO' pelo número de telefone no formato internacional (sem espaços ou símbolos)
-            const whatsappNumber = '5511999999999'; // Exemplo: +55 11 99999-9999
-            const message = `Nome: ${name}%0ATelefone: ${phone}`;
+            const vCard = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+TEL:${phone}
+END:VCARD
+            `.trim();
 
-            // Redirecionar para WhatsApp com a mensagem pré-preenchida
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=<YOUR_PHONE_NUMBER>&text=${encodeURIComponent(vCard)}`;
+
             window.open(whatsappUrl, '_blank');
         });
     </script>
